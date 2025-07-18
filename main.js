@@ -18,7 +18,7 @@ async function sendMessage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer J4627OG9_Qv2DSdxc546xi_pXleqjj_QTKYA` // ← مفتاحك الحقيقي
+        Authorization: `Bearer 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` // ← مفتاحك الحقيقي
       },
       body: JSON.stringify({
         model: "gpt-4",
