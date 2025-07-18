@@ -1,46 +1,43 @@
-const chatBox = document.getElementById('chatBox');
-const userInput = document.getElementById('userInput');
+// main.js أو أي ملف JS مربوط بالواجهة
 
-// إرسال الرسالة وتخزينها في Firebase
-function sendMessage() {
-  let message = userInput.value.trim();
-  if(message) {
-    appendMessage('أنت', message, 'right');
-    db.ref('messages').push({sender: 'user', text: message});
-    userInput.value = '';
-    getBotReply(message);
-  }
-}
+const chatForm = document.querySelector("form");
+const chatInput = document.querySelector("input");
+const chatBox = document.querySelector(".chat-box");
 
-// عرض الرسائل في الواجهة
-function appendMessage(sender, text, align='left') {
-  chatBox.innerHTML += `<div style="text-align:${align};margin-bottom:7px;"><b>${sender}:</b> ${text}</div>`;
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+chatForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-// جلب الرد من OpenAI (عن طريق Cloud Function أو API وسيط)
-function getBotReply(userMessage) {
-  appendMessage('سروح', 'جاري التفكير...', 'left');
-  // عدل الرابط أدناه ليكون رابط الـ endpoint الخاص بك (Cloud Function أو سيرفر خاص)
-  fetch('https://YOUR_CLOUD_FUNCTION_URL/ask', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({message: userMessage})
-  })
-  .then(res => res.json())
-  .then(data => {
-    // إزالة "جاري التفكير..."
-    chatBox.lastChild.remove();
-    appendMessage('سروح', data.reply, 'left');
-    db.ref('messages').push({sender: 'bot', text: data.reply});
-  })
-  .catch(() => {
-    chatBox.lastChild.remove();
-    appendMessage('سروح', 'حصل خطأ بالاتصال، حاول مجدداً.', 'left');
+  const userMessage = chatInput.value.trim();
+  if (!userMessage) return;
+
+  // عرض الرسالة داخل الشات
+  appendMessage("أنت", userMessage);
+  chatInput.value = "";
+
+  // أرسل الطلب إلى OpenAI
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer YOUR_OPENAI_API_KEY` // ← حط المفتاح هون أو من .env
+    },
+    body: JSON.stringify({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "أنت سُروح، المساعدة الذكية الخاصة بـ سام بورفات." },
+        { role: "user", content: userMessage }
+      ]
+    })
   });
-}
 
-// دعم الإرسال بالضغط على Enter
-userInput.addEventListener('keydown', function(event) {
-  if(event.key === 'Enter') sendMessage();
+  const data = await response.json();
+  const reply = data.choices[0].message.content;
+  appendMessage("سُروح", reply);
 });
+
+// وظيفة عرض الرسائل
+function appendMessage(sender, message) {
+  const msgElement = document.createElement("p");
+  msgElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+  chatBox.appendChild(msgElement);
+}
