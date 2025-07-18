@@ -19,7 +19,7 @@ chatForm.addEventListener("submit", async (e) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer YOUR_OPENAI_API_KEY` // ← حط المفتاح هون أو من .env
+      Authorization: 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 // ← حط المفتاح هون أو من .env
     },
     body: JSON.stringify({
       model: "gpt-4",
